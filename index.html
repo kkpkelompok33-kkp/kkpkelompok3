@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAPOR! — Sistem Pengaduan Masyarakat</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #fffdf7;
+    --surface2: #eee9dc;
+    --accent: #c84b2f;
+    --accent2: #e8703a;
+    --text: #1a1510;
+    --text-muted: #6b5f4e;
+    --border: #d4c9b0;
+    --admin: #1e3a5f;
+    --admin-light: #e8f0fa;
+    --staff: #2d5a3d;
+    --staff-light: #e8f5ec;
+    --danger: #c84b2f;
+    --success: #2d7a4f;
+    --shadow: 0 2px 20px rgba(26,21,16,0.08);
+    --shadow-lg: 0 8px 40px rgba(26,21,16,0.14);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  /* ---- PAGES ---- */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ---- HEADER ---- */
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--text); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .badge-admin { background: var(--admin); color: #fff; }
+  .badge-staff { background: var(--staff); color: #fff; }
+  .badge-public { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.18s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #a83a20; transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+  }
+  .btn-ghost:hover { color: var(--accent); }
+
+  .btn-danger {
+    background: transparent;
+    border: 1.5px solid #e5c4bc;
+    color: var(--danger);
+    padding: 5px 12px;
+    font-size: 0.8rem;
+  }
+  .btn-danger:hover { background: var(--danger); color: #fff; }
+
+  /* ---- HERO / PUBLIC PAGE ---- */
+  .hero {
+    background: var(--text);
+    color: #fff;
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 30px,
+      rgba(200,75,47,0.06) 30px,
+      rgba(200,75,47,0.06) 31px
+    );
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent2);
+  }
+
+  .hero p {
+    color: rgba(255,255,255,0.65);
+    max-width: 480px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+    position: relative;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin-top: 2.5rem;
+    position: relative;
+  }
+
+  .hero-stat { text-align: center; }
+  .hero-stat .num {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .hero-stat .label {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ---- FORM SECTION ---- */
+  .form-section {
+    max-width: 720px;
+    margin: -3rem auto 3rem;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 10;
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+  }
+
+  .card h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  input, textarea, select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    transition: border-color 0.15s;
+    outline: none;
+    width: 100%;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    background: #fff;
+  }
+
+  textarea { resize: vertical; min-height: 110px; }
+
+  .char-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  .submit-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.2rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--surface2);
+  }
+
+  .privacy-note {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-submit {
+    background: var(--accent);
+    color: #fff;
+    padding: 11px 28px;
+    font-size: 0.95rem;
+    border-radius: 9px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-submit:hover { background: #a83a20; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(200,75,47,0.3); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ---- SUCCESS TOAST ---- */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--success);
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 500;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ---- LOGIN PAGE ---- */
+  .login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--text);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,75,47,0.15) 0%, transparent 70%);
+    top: -200px;
+    right: -100px;
+  }
+
+  .login-box {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+  }
+
+  .login-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+
+  .login-logo span { color: var(--text); }
+
+  .login-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .login-tabs {
+    display: flex;
+    gap: 0;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 1.5rem;
+  }
+
+  .login-tab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+
+  .login-tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .login-tab.active[data-role="admin"] { color: var(--admin); }
+  .login-tab.active[data-role="staff"] { color: var(--staff); }
+
+  .login-form { display: flex; flex-direction: column; gap: 1rem; }
+
+  .login-hint {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    border-left: 3px solid var(--border);
+    line-height: 1.5;
+  }
+
+  .login-error {
+    background: #fdf0ee;
+    border: 1px solid #f2cac3;
+    color: var(--danger);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 0.83rem;
+    display: none;
+  }
+
+  .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-decoration: underline;
+    background: none;
+    border: none;
+  }
+  .back-link:hover { color: var(--accent); }
+
+  /* ---- DASHBOARD ---- */
+  .dash-layout {
+    display: flex;
+    min-height: calc(100vh - 68px);
+  }
+
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1.5px solid var(--border);
+    padding: 1.5rem 1rem;
+    flex-shrink: 0;
+    position: sticky;
+    top: 68px;
+    height: calc(100vh - 68px);
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .sidebar-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: var(--accent); color: #fff; }
+
+  .sidebar-item .icon { font-size: 1rem; width: 18px; text-align: center; }
+
+  .dash-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+  }
+
+  /* ---- STATS CARDS ---- */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  .stat-card .stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-card .stat-val {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .stat-card .stat-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ---- FILTER BAR ---- */
+  .filter-bar {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-bar input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .filter-bar select {
+    width: auto;
+    min-width: 150px;
+  }
+
+  /* ---- LAPORAN CARDS ---- */
+  .laporan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .laporan-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.3rem 1.5rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.15s;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .laporan-card:hover { box-shadow: var(--shadow-lg); }
+
+  .laporan-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    gap: 1rem;
+  }
+
+  .laporan-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .laporan-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .laporan-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .laporan-info span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .laporan-kategori {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .kat-infrastruktur { background: #e8f0fa; color: #1e3a5f; }
+  .kat-kebersihan { background: #e8f5ec; color: #2d5a3d; }
+  .kat-keamanan { background: #fdf0ee; color: #c84b2f; }
+  .kat-pelayanan { background: #fff8e8; color: #8a6000; }
+  .kat-lainnya { background: var(--surface2); color: var(--text-muted); }
+
+  .laporan-body { font-size: 0.9rem; color: var(--text); line-height: 1.6; }
+
+  .laporan-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--surface2);
+  }
+
+  .laporan-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .laporan-actions { display: flex; gap: 0.5rem; }
+
+  /* Status badge */
+  .status-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .status-baru { background: #e8f0fa; color: var(--admin); }
+  .status-proses { background: #fff8e8; color: #8a6000; }
+  .status-selesai { background: var(--staff-light); color: var(--staff); }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+  }
+
+  .empty-state .big-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+  .empty-state h3 { font-family: 'Fraunces', serif; font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text); }
+  .empty-state p { font-size: 0.88rem; }
+
+  /* Page title */
+  .page-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 0.3rem;
+  }
+
+  .page-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Status selector (admin) */
+  .status-select {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    cursor: pointer;
+  }
+
+  /* Modal confirm */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,21,16,0.55);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: var(--shadow-lg);
+    animation: popIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal h3 { font-family: 'Fraunces', serif; font-size: 1.3rem; margin-bottom: 0.75rem; }
+  .modal p { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+  .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+  /* Footer nav bar (public) */
+  .public-nav {
+    background: var(--surface);
+    border-top: 2px solid var(--border);
+    padding: 1.5rem 2rem;
+    text-align: center;
+  }
+
+  .public-nav a {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .public-nav a:hover { color: var(--accent); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+    .dash-layout { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .sidebar-section { margin: 0; }
+    .sidebar-label { display: none; }
+    .hero-stats { gap: 1.5rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    header { padding: 0 1rem; }
+    .logo { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!--  PAGE: PUBLIC (Halaman Utama Warga)                          -->
+<!-- ============================================================ -->
+<div id="page-public" class="page active">
+  <header>
+    <div class="logo">PENGADUAN MASYARAKAT SETEMPAT!<span></span></div>
+    <div class="header-right">
+      <span class="badge badge-public">Publik</span>
+      <button class="btn btn-ghost" onclick="showLogin()">Login Admin / Staff →</button>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-badge">🏛 Sistem Pengaduan Resmi</div>
+    <h1>Suara Anda,<br><em>Perubahan Nyata</em></h1>
+    <p>Sampaikan pengaduan, saran, atau aspirasi Anda kepada pemerintah daerah kami. Setiap laporan ditangani dengan serius.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num" id="stat-total">0</div>
+        <div class="label">Laporan Masuk</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num" id="stat-proses">0</div>
+        <div class="label">Diproses</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num" id="stat-selesai">0</div>
+        <div class="label">Diselesaikan</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="card">
+      <h2>📝 Kirim Pengaduan atau Saran</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nama Lengkap *</label>
+          <input type="text" id="pub-nama" placeholder="Budi Santoso">
+        </div>
+        <div class="form-group">
+          <label>Nomor HP / WA</label>
+          <input type="tel" id="pub-hp" placeholder="08xxxxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label>Alamat / RT/RW</label>
+          <input type="text" id="pub-alamat" placeholder="Jl. Merdeka No.10, RT 02/03">
+        </div>
+        <div class="form-group">
+          <label>Kategori *</label>
+          <select id="pub-kategori">
+            <option value="">-- Pilih Kategori --</option>
+            <option value="infrastruktur">🏗 Infrastruktur & Jalan</option>
+            <option value="kebersihan">🌿 Kebersihan & Lingkungan</option>
+            <option value="keamanan">🛡 Keamanan & Ketertiban</option>
+            <option value="pelayanan">📋 Pelayanan Publik</option>
+            <option value="lainnya">📌 Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Judul Pengaduan *</label>
+          <input type="text" id="pub-judul" placeholder="Ringkasan singkat pengaduan Anda">
+        </div>
+        <div class="form-group full">
+          <label>Isi Pengaduan / Saran *</label>
+          <textarea id="pub-isi" placeholder="Ceritakan permasalahan secara detail: lokasi, waktu kejadian, dampak yang ditimbulkan, dan saran penyelesaian..." oninput="updateCharCount(this, 'char-count')"></textarea>
+          <div class="char-count"><span id="char-count">0</span> / 1000 karakter</div>
+        </div>
+      </div>
+      <div class="submit-row">
+        <div class="privacy-note">🔒 Data Anda aman &amp; dijaga kerahasiaannya</div>
+        <button class="btn-submit" onclick="submitLaporan()">
+          <span>Kirim Laporan</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="public-nav">
+    <p style="color: var(--text-muted); font-size:0.82rem;">Pengaduan Anda bersifat rahasia dan hanya dapat dilihat oleh petugas berwenang. &nbsp;|&nbsp; <a onclick="showLogin()">Login Petugas</a></p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  PAGE: LOGIN                                                  -->
+<!-- ============================================================ -->
+<div id="page-login" class="page">
+  <div class="login-wrapper">
+    <div class="login-box">
+      <div class="login-logo">LAPOR!<span>.</span></div>
+      <div class="login-subtitle">Portal Petugas — Login untuk melanjutkan</div>
+
+      <div class="login-tabs">
+        <button class="login-tab active" data-role="admin" onclick="switchLoginTab('admin', this)">👤 Admin</button>
+        <button class="login-tab" data-role="staff" onclick="switchLoginTab('staff', this)">🧑‍💼 Staff</button>
+      </div>
+
+      <div class="login-form">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="login-user" placeholder="Masukkan username" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()">
+        </div>
+        <div class="login-hint" id="login-hint">
+          <strong>Demo Admin:</strong> admin / admin123<br>
+          Akses penuh: lihat, ubah status, hapus laporan.
+        </div>
+        <div class="login-error" id="login-error">Username atau password salah. Coba lagi.</div>
+        <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="doLogin()">Masuk →</button>
+      </div>
+
+      <button class="back-link" onclick="showPublic()">← Kembali ke Halaman Publik</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  PAGE: DASHBOARD ADMIN                                       -->
+<!-- ============================================================ -->
+<div id="page-admin" class="page">
+  <header>
+    <div class="logo">LAPOR!<span>.</span></div>
+    <div class="header-right">
+      <span class="badge badge-admin">👤 Admin</span>
+      <span id="admin-username-label" style="font-size:0.85rem; color: var(--text-muted);"></span>
+      <button class="btn btn-outline" onclick="doLogout()">Keluar</button>
+    </div>
+  </header>
+
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Menu</div>
+        <button class="sidebar-item active" onclick="adminNav('laporan', this)">
+          <span class="icon">📋</span> Semua Laporan
+        </button>
+        <button class="sidebar-item" onclick="adminNav('statistik', this)">
+          <span class="icon">📊</span> Statistik
+        </button>
+      </div>
+    </aside>
+
+    <main class="dash-content">
+      <!-- Panel: Laporan -->
+      <div id="admin-panel-laporan">
+        <div class="page-title">Daftar Pengaduan</div>
+        <div class="page-desc">Kelola semua laporan yang masuk dari masyarakat.</div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📥</div>
+            <div class="stat-val" id="a-total">0</div>
+            <div class="stat-label">Total Laporan</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🔔</div>
+            <div class="stat-val" id="a-baru">0</div>
+            <div class="stat-label">Baru</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⚙️</div>
+            <div class="stat-val" id="a-proses">0</div>
+            <div class="stat-label">Diproses</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-val" id="a-selesai">0</div>
+            <div class="stat-label">Selesai</div>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="search-input" placeholder="🔍 Cari nama, judul, atau isi..." oninput="renderAdmin()">
+          <select id="filter-kat" onchange="renderAdmin()">
+            <option value="">Semua Kategori</option>
+            <option value="infrastruktur">Infrastruktur</option>
+            <option value="kebersihan">Kebersihan</option>
+            <option value="keamanan">Keamanan</option>
+            <option value="pelayanan">Pelayanan</option>
+            <option value="lainnya">Lainnya</option>
+          </select>
+          <select id="filter-status" onchange="renderAdmin()">
+            <option value="">Semua Status</option>
+            <option value="baru">Baru</option>
+            <option value="proses">Diproses</option>
+            <option value="selesai">Selesai</option>
+          </select>
+        </div>
+
+        <div id="admin-list" class="laporan-list"></div>
+      </div>
+
+      <!-- Panel: Statistik -->
+      <div id="admin-panel-statistik" style="display:none;">
+        <div class="page-title">Statistik Laporan</div>
+        <div class="page-desc">Ringkasan laporan berdasarkan kategori dan status.</div>
+        <div id="stat-detail" class="stats-grid" style="grid-template-columns: 1fr 1fr; gap:1.5rem;"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  PAGE: DASHBOARD STAFF                                       -->
+<!-- ============================================================ -->
+<div id="page-staff" class="page">
+  <header>
+    <div class="logo">LAPOR!<span>.</span></div>
+    <div class="header-right">
+      <span class="badge badge-staff">🧑‍💼 Staff</span>
+      <span id="staff-username-label" style="font-size:0.85rem; color: var(--text-muted);"></span>
+      <button class="btn btn-outline" onclick="doLogout()">Keluar</button>
+    </div>
+  </header>
+
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Menu</div>
+        <button class="sidebar-item active">
+          <span class="icon">📋</span> Semua Laporan
+        </button>
+      </div>
+    </aside>
+
+    <main class="dash-content">
+      <div class="page-title">Daftar Pengaduan</div>
+      <div class="page-desc">Mode tampilan saja — Anda tidak dapat mengubah atau menghapus laporan.</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📥</div>
+          <div class="stat-val" id="s-total">0</div>
+          <div class="stat-label">Total Laporan</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔔</div>
+          <div class="stat-val" id="s-baru">0</div>
+          <div class="stat-label">Baru</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⚙️</div>
+          <div class="stat-val" id="s-proses">0</div>
+          <div class="stat-label">Diproses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-val" id="s-selesai">0</div>
+          <div class="stat-label">Selesai</div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" id="staff-search" placeholder="🔍 Cari nama, judul, atau isi..." oninput="renderStaff()">
+        <select id="staff-filter-kat" onchange="renderStaff()">
+          <option value="">Semua Kategori</option>
+          <option value="infrastruktur">Infrastruktur</option>
+          <option value="kebersihan">Kebersihan</option>
+          <option value="keamanan">Keamanan</option>
+          <option value="pelayanan">Pelayanan</option>
+          <option value="lainnya">Lainnya</option>
+        </select>
+        <select id="staff-filter-status" onchange="renderStaff()">
+          <option value="">Semua Status</option>
+          <option value="baru">Baru</option>
+          <option value="proses">Diproses</option>
+          <option value="selesai">Selesai</option>
+        </select>
+      </div>
+
+      <div id="staff-list" class="laporan-list"></div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  MODAL: Konfirmasi Hapus                                     -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="modal-hapus">
+  <div class="modal">
+    <h3>🗑 Hapus Laporan</h3>
+    <p>Apakah Anda yakin ingin menghapus laporan ini? Tindakan ini tidak dapat dibatalkan.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" style="background: var(--danger);" onclick="confirmHapus()">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Laporan berhasil dikirim!</div>
+
+<!-- ============================================================ -->
+<!--  SCRIPT                                                      -->
+<!-- ============================================================ -->
+<script>
+  // ---- DATA ----
+  const USERS = {
+    admin: [
+      { username: 'admin', password: 'kkpadmin123', display: 'Administrator' },
+      { username: 'nando', password: 'kkp123', display: 'nando' }
+    ],
+    staff: [
+      { username: 'fikri', password: 'kkp123', display: 'fikri (Staff)' },
+      { username: 'servas', password: 'kkp123', display: 'servanus (Staff)' },
+      { username: 'talah', password: 'kkp123', display: 'talah (Staff)'}
+    ]
+  };
+
+  let laporan = JSON.parse(localStorage.getItem('laporan_data') || '[]');
+  let currentRole = null;
+  let currentUser = null;
+  let loginRoleSelected = 'admin';
+  let hapusId = null;
+
+  // Seed data contoh jika kosong
+  if (laporan.length === 0) {
+    laporan = [
+      {
+        id: 1, nama: 'Ahmad Fauzi', hp: '08112345678', alamat: 'RT 03/02 Kel. Merdeka',
+        kategori: 'infrastruktur', judul: 'Jalan rusak di depan gang 5',
+        isi: 'Jalan di depan gang 5 sudah berlubang cukup besar sejak 2 bulan lalu dan membahayakan pengendara motor, terutama saat hujan.',
+        status: 'baru', tanggal: '2025-04-20T08:30:00'
+      },
+      {
+        id: 2, nama: 'Siti Rahayu', hp: '08987654321', alamat: 'RT 01/05 Kel. Sejahtera',
+        kategori: 'kebersihan', judul: 'Tempat sampah liar di pinggir sungai',
+        isi: 'Warga membuang sampah sembarangan di pinggir sungai dekat jembatan besi. Mohon ada penertiban dan penyediaan tempat sampah resmi.',
+        status: 'proses', tanggal: '2025-04-21T10:15:00'
+      },
+      {
+        id: 3, nama: 'Doni Prasetyo', hp: '', alamat: 'Perum. Griya Indah Blok C',
+        kategori: 'keamanan', judul: 'Lampu jalan padam sejak seminggu',
+        isi: 'Lampu penerangan jalan di Blok C sudah mati sejak seminggu yang lalu. Warga merasa khawatir karena area menjadi sangat gelap di malam hari.',
+        status: 'selesai', tanggal: '2025-04-18T14:00:00'
+      },
+      {
+        id: 4, nama: 'Nurul Hidayah', hp: '08567890123', alamat: 'Kp. Baru RT 07',
+        kategori: 'pelayanan', judul: 'Pelayanan KTP di kelurahan lambat',
+        isi: 'Saya sudah antri 3 kali untuk pengurusan KTP baru tapi selalu disuruh kembali esok hari tanpa penjelasan yang jelas. Mohon diperbaiki sistem antriannya.',
+        status: 'baru', tanggal: '2025-04-22T09:00:00'
+      }
+    ];
+    saveLaporan();
+  }
+
+  function saveLaporan() {
+    localStorage.setItem('laporan_data', JSON.stringify(laporan));
+    updatePublicStats();
+  }
+
+  // ---- NAV ----
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function showLogin() { showPage('login'); }
+  function showPublic() { showPage('public'); updatePublicStats(); }
+
+  // ---- LOGIN ----
+  function switchLoginTab(role, btn) {
+    loginRoleSelected = role;
+    document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-error').style.display = 'none';
+    const hint = document.getElementById('login-hint');
+    if (role === 'admin') {
+      hint.innerHTML = '<strong>Demo Admin:</strong> admin / admin123<br>Akses penuh: lihat, ubah status, hapus laporan.';
+    } else {
+      hint.innerHTML = '<strong>Demo Staff:</strong> staff1 / staff123<br>Akses terbatas: hanya bisa melihat laporan.';
+    }
+  }
+
+  function doLogin() {
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value;
+    const err = document.getElementById('login-error');
+    err.style.display = 'none';
+
+    const list = USERS[loginRoleSelected] || [];
+    const found = list.find(x => x.username === u && x.password === p);
+    if (!found) {
+      err.style.display = 'block';
+      return;
+    }
+
+    currentRole = loginRoleSelected;
+    currentUser = found;
+
+    if (currentRole === 'admin') {
+      document.getElementById('admin-username-label').textContent = found.display;
+      showPage('admin');
+      renderAdmin();
+    } else {
+      document.getElementById('staff-username-label').textContent = found.display;
+      showPage('staff');
+      renderStaff();
+    }
+  }
+
+  function doLogout() {
+    currentRole = null;
+    currentUser = null;
+    showPublic();
+  }
+
+  // ---- SUBMIT LAPORAN ----
+  function updateCharCount(el, countId) {
+    document.getElementById(countId).textContent = el.value.length;
+  }
+
+  async function submitLaporan() {
+    const nama = document.getElementById('pub-nama').value.trim();
+    const hp = document.getElementById('pub-hp').value.trim();
+    const alamat = document.getElementById('pub-alamat').value.trim();
+    const kategori = document.getElementById('pub-kategori').value;
+    const judul = document.getElementById('pub-judul').value.trim();
+    const isi = document.getElementById('pub-isi').value.trim();
+
+    if (!nama || !kategori || !judul || !isi) {
+      alert('Mohon lengkapi field yang bertanda * (Nama, Kategori, Judul, Isi Pengaduan).');
+      return;
+    }
+
+    const newLap = {
+      id: Date.now(),
+      nama, hp, alamat, kategori, judul, isi,
+      status: 'baru',
+      tanggal: new Date().toISOString()
+    };
+
+    try {
+      await addDoc(collection(db, "pengaduan"), {
+        nama,
+        hp,
+        alamat,
+        kategori,
+        judul,
+        isi,
+        status: "baru",
+        tanggal: new Date().toISOString()
+      });
+    } catch(error) {
+      console.error(error);
+      alert("Gagal menyimpan ke Firebase");
+      return;
+    }
+
+    laporan.unshift(newLap);
+    saveLaporan();
+
+    // Reset form
+    ['pub-nama','pub-hp','pub-alamat','pub-judul','pub-isi'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pub-kategori').value = '';
+    document.getElementById('char-count').textContent = '0';
+
+    showToast('✅ Laporan berhasil dikirim! Terima kasih atas partisipasi Anda.');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ---- STATS PUBLIC ----
+  function updatePublicStats() {
+    document.getElementById('stat-total').textContent = laporan.length;
+    document.getElementById('stat-proses').textContent = laporan.filter(l => l.status === 'proses').length;
+    document.getElementById('stat-selesai').textContent = laporan.filter(l => l.status === 'selesai').length;
+  }
+
+  // ---- HELPERS ----
+  const katLabels = {
+    infrastruktur: 'Infrastruktur',
+    kebersihan: 'Kebersihan',
+    keamanan: 'Keamanan',
+    pelayanan: 'Pelayanan',
+    lainnya: 'Lainnya'
+  };
+
+  const statusLabels = { baru: 'Baru', proses: 'Diproses', selesai: 'Selesai' };
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) +
+      ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function filterLaporan(searchEl, katEl, statusEl) {
+    const q = (document.getElementById(searchEl)?.value || '').toLowerCase();
+    const kat = document.getElementById(katEl)?.value || '';
+    const st = document.getElementById(statusEl)?.value || '';
+    return laporan.filter(l => {
+      const matchQ = !q || l.nama.toLowerCase().includes(q) || l.judul.toLowerCase().includes(q) || l.isi.toLowerCase().includes(q);
+      const matchK = !kat || l.kategori === kat;
+      const matchS = !st || l.status === st;
+      return matchQ && matchK && matchS;
+    });
+  }
+
+  function laporanCard(l, isAdmin) {
+    const katClass = 'kat-' + l.kategori;
+    const stClass = 'status-' + l.status;
+
+    const adminActions = isAdmin ? `
+      <select class="status-select" onchange="changeStatus(${l.id}, this.value)">
+        <option value="baru" ${l.status==='baru'?'selected':''}>🔔 Baru</option>
+        <option value="proses" ${l.status==='proses'?'selected':''}>⚙️ Diproses</option>
+        <option value="selesai" ${l.status==='selesai'?'selected':''}>✅ Selesai</option>
+      </select>
+      <button class="btn btn-danger" onclick="hapusLaporan(${l.id})">🗑 Hapus</button>
+    ` : `<span class="status-badge ${stClass}">${statusLabels[l.status]}</span>`;
+
+    return `
+      <div class="laporan-card" id="card-${l.id}">
+        <div class="laporan-header">
+          <div class="laporan-meta">
+            <div class="laporan-name">${escHtml(l.nama)}</div>
+            <div class="laporan-info">
+              <span class="laporan-kategori ${katClass}">${katLabels[l.kategori]||l.kategori}</span>
+              ${l.alamat ? `<span>📍 ${escHtml(l.alamat)}</span>` : ''}
+              ${l.hp ? `<span>📞 ${escHtml(l.hp)}</span>` : ''}
+            </div>
+          </div>
+          ${!isAdmin ? `<span class="status-badge ${stClass}">${statusLabels[l.status]}</span>` : ''}
+        </div>
+        <div style="font-weight:700; margin-bottom:6px; font-size:0.95rem;">${escHtml(l.judul)}</div>
+        <div class="laporan-body">${escHtml(l.isi)}</div>
+        <div class="laporan-footer">
+          <div class="laporan-date">🕐 ${formatDate(l.tanggal)}</div>
+          <div class="laporan-actions">${adminActions}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ---- ADMIN RENDER ----
+  function renderAdmin() {
+    const filtered = filterLaporan('search-input', 'filter-kat', 'filter-status');
+    const el = document.getElementById('admin-list');
+
+    // Stats
+    document.getElementById('a-total').textContent = laporan.length;
+    document.getElementById('a-baru').textContent = laporan.filter(l=>l.status==='baru').length;
+    document.getElementById('a-proses').textContent = laporan.filter(l=>l.status==='proses').length;
+    document.getElementById('a-selesai').textContent = laporan.filter(l=>l.status==='selesai').length;
+
+    if (filtered.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="big-icon">📭</div><h3>Tidak ada laporan</h3><p>Belum ada laporan yang sesuai filter ini.</p></div>`;
+      return;
+    }
+    el.innerHTML = filtered.map(l => laporanCard(l, true)).join('');
+  }
+
+  function renderStaff() {
+    const filtered = filterLaporan('staff-search', 'staff-filter-kat', 'staff-filter-status');
+    const el = document.getElementById('staff-list');
+
+    document.getElementById('s-total').textContent = laporan.length;
+    document.getElementById('s-baru').textContent = laporan.filter(l=>l.status==='baru').length;
+    document.getElementById('s-proses').textContent = laporan.filter(l=>l.status==='proses').length;
+    document.getElementById('s-selesai').textContent = laporan.filter(l=>l.status==='selesai').length;
+
+    if (filtered.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="big-icon">📭</div><h3>Tidak ada laporan</h3><p>Belum ada laporan yang sesuai filter ini.</p></div>`;
+      return;
+    }
+    el.innerHTML = filtered.map(l => laporanCard(l, false)).join('');
+  }
+
+  // ---- ADMIN ACTIONS ----
+  function changeStatus(id, val) {
+    const l = laporan.find(x => x.id === id);
+    if (l) { l.status = val; saveLaporan(); renderAdmin(); }
+  }
+
+  function hapusLaporan(id) {
+    hapusId = id;
+    document.getElementById('modal-hapus').classList.add('show');
+  }
+
+  function closeModal() {
+    hapusId = null;
+    document.getElementById('modal-hapus').classList.remove('show');
+  }
+
+  function confirmHapus() {
+    laporan = laporan.filter(l => l.id !== hapusId);
+    saveLaporan();
+    closeModal();
+    renderAdmin();
+    showToast('🗑 Laporan berhasil dihapus.');
+  }
+
+  // ---- ADMIN NAV ----
+  function adminNav(panel, btn) {
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('admin-panel-laporan').style.display = panel === 'laporan' ? '' : 'none';
+    document.getElementById('admin-panel-statistik').style.display = panel === 'statistik' ? '' : 'none';
+    if (panel === 'statistik') renderStat();
+  }
+
+  function renderStat() {
+    const kats = ['infrastruktur','kebersihan','keamanan','pelayanan','lainnya'];
+    const icons = { infrastruktur:'🏗', kebersihan:'🌿', keamanan:'🛡', pelayanan:'📋', lainnya:'📌' };
+    const el = document.getElementById('stat-detail');
+    el.innerHTML = kats.map(k => {
+      const total = laporan.filter(l => l.kategori === k).length;
+      return `<div class="stat-card">
+        <div class="stat-icon">${icons[k]}</div>
+        <div class="stat-val">${total}</div>
+        <div class="stat-label">${katLabels[k]}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Init
+  updatePublicStats();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA5s7-3gCa41IRo0fU-5FSGT6xb3QaZ4Vs",
+  authDomain: "kkpkelompok3-53ac2.firebaseapp.com",
+  projectId: "kkpkelompok3-53ac2",
+  storageBucket: "kkpkelompok3-53ac2.firebasestorage.app",
+  messagingSenderId: "196792501965",
+  appId: "1:196792501965:web:624bb7f81ea42c362b8b84",
+  measurementId: "G-RNTBNYLRYX"
+};
+
+const app = initializeApp(firebaseConfig);
+window.db = getFirestore(app);
+window.collection = collection;
+window.addDoc = addDoc;
+</script>
+
+</body>
+</html>
